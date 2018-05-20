@@ -23,14 +23,19 @@ class ViewController: UIViewController {
     
     @IBAction func topNotice(_ sender: AnyObject) {
         UIApplication.shared.setStatusBarHidden(false, with: .slide)
-        self.noticeTop("OK!")
+        self.noticeTop("OK!, tap to hide", hideAfter: 10)
     }
     @IBAction func wait(_ sender: AnyObject) {
         var imagesArray = Array<UIImage>()
         for i in 1...7 {
             imagesArray.append(UIImage(named: "loading\(i)")!)
         }
-        self.pleaseWaitWithImages(imagesArray, timeInterval: 5)
+        let hud = self.pleaseWaitWithImages(imagesArray, timeInterval: 50)
+        DispatchQueue.global().async {
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1, execute: {
+                hud.hide()
+            })
+        }
     }
     @IBAction func noticeSuccess(_ sender: AnyObject) {
         self.noticeSuccess("Success!", hideAfter: 5)

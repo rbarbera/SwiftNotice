@@ -77,7 +77,7 @@ class SwiftNotice: NSObject {
     }
     
     @discardableResult
-    static func noticeOnStatusBar(_ text: String, hideAfter: Int = 0) -> UIWindow{
+    static func noticeOnStatusBar(_ text: String, hideAfter: Int = 0, closeOnTap: Bool = true) -> UIWindow{
         let frame = UIApplication.shared.statusBarFrame
         let window = UIWindow()
         window.backgroundColor = UIColor.clear
@@ -112,6 +112,12 @@ class SwiftNotice: NSObject {
                 self.perform(.hideNotice, with: window, afterDelay: TimeInterval(hideAfter))
             }
         })
+        
+        if closeOnTap {
+            let tap = UITapGestureRecognizer(target: window, action: #selector(UIWindow.hide))
+            window.addGestureRecognizer(tap)
+        }
+
         return window
     }
     
