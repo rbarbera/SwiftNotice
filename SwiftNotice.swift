@@ -20,13 +20,13 @@ extension UIResponder {
     }
 
     @discardableResult
-    func noticeInfo(_ text: String, hideAfter: Int = 2, closeOnTap: Bool = true) -> UIWindow{
-        return SwiftNotice.noticeOnStatusBar(text, color: UIColor(red: 0x6a/0x100, green: 0xb4/0x100, blue: 0x9f/0x100, alpha: 1), hideAfter: hideAfter, closeOnTap: closeOnTap)
+    func noticeInfo(_ text: String, hideAfter: Int = 3, closeOnTap: Bool = true) -> UIWindow{
+        return SwiftNotice.noticeOnStatusBar(text, color: SwiftNotice.infoColor, hideAfter: hideAfter, closeOnTap: closeOnTap)
     }
 
     @discardableResult
-    func noticeError(_ text: String, hideAfter: Int = 2, closeOnTap: Bool = true) -> UIWindow{
-        return SwiftNotice.noticeOnStatusBar(text, color: UIColor(red: 0x9f/0x100, green: 0x04/0x100, blue: 0x04/0x100, alpha: 1), hideAfter: hideAfter, closeOnTap: closeOnTap)
+    func noticeError(_ text: String, hideAfter: Int = 3, closeOnTap: Bool = true) -> UIWindow{
+        return SwiftNotice.noticeOnStatusBar(text, color: SwiftNotice.errorColor, hideAfter: hideAfter, closeOnTap: closeOnTap)
     }
 
     @discardableResult
@@ -44,7 +44,10 @@ class SwiftNotice: NSObject {
     static var windows = Array<UIWindow?>()
     static var timer: DispatchSource!
     static var timerTimes = 0
-
+    
+    static var infoColor = UIColor(red: 0x6a/0x100, green: 0xb4/0x100, blue: 0x9f/0x100, alpha: 1)
+    static var errorColor = UIColor(red: 0x9f/0x100, green: 0x04/0x100, blue: 0x04/0x100, alpha: 1)
+    
     static func clear() {
         self.cancelPreviousPerformRequests(withTarget: self)
         if let _ = timer {
