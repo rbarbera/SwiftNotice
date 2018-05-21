@@ -15,22 +15,22 @@ private let sn_topBar: Int = 1001
 extension UIResponder {
 
     @discardableResult
-    func pleaseWait() -> UIWindow{
+    func pleaseWait() -> UIWindow {
         return SwiftNotice.wait()
     }
 
     @discardableResult
-    func noticeInfo(_ text: String, hideAfter: Int = 3, closeOnTap: Bool = true) -> UIWindow{
+    func noticeInfo(_ text: String, hideAfter: Int = 3, closeOnTap: Bool = true) -> UIWindow {
         return SwiftNotice.noticeOnStatusBar(text, color: SwiftNotice.infoColor, hideAfter: hideAfter, closeOnTap: closeOnTap)
     }
 
     @discardableResult
-    func noticeError(_ text: String, hideAfter: Int = 3, closeOnTap: Bool = true) -> UIWindow{
+    func noticeError(_ text: String, hideAfter: Int = 3, closeOnTap: Bool = true) -> UIWindow {
         return SwiftNotice.noticeOnStatusBar(text, color: SwiftNotice.errorColor, hideAfter: hideAfter, closeOnTap: closeOnTap)
     }
 
     @discardableResult
-    func noticeOnlyText(_ text: String, hideAfter: Int = 3, closeOnTap: Bool = true) -> UIWindow{
+    func noticeOnlyText(_ text: String, hideAfter: Int = 3, closeOnTap: Bool = true) -> UIWindow {
         return SwiftNotice.showText(text, hideAfter: hideAfter, closeOnTap: closeOnTap)
     }
     
@@ -203,7 +203,6 @@ fileprivate extension Selector {
 }
 
 @objc extension SwiftNotice {
-    // fix https://github.com/johnlui/SwiftNotice/issues/2
     static func hideNotice(_ sender: AnyObject) {
         if let window = sender as? UIWindow {
             if let v = window.subviews.first {

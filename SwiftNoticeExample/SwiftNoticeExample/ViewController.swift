@@ -26,9 +26,16 @@ class ViewController: UIViewController {
         self.noticeInfo("OK!, tap to hide", hideAfter: 10)
     }
     @IBAction func wait(_ sender: AnyObject) {
+        let hud = self.pleaseWait()
+        DispatchQueue.global().async {
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1) {
+                hud.hide()
+            }
+        }
     }
 
     @IBAction func noticeSuccess(_ sender: AnyObject) {
+        self.noticeInfo("Success")
     }
     
     @IBAction func noticeError(_ sender: AnyObject) {
@@ -36,6 +43,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func noticeInfo(_ sender: AnyObject) {
+        self.noticeInfo("Info")
     }
     
     @IBAction func text(_ sender: AnyObject) {
