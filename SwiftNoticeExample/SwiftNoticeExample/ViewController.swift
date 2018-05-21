@@ -41,7 +41,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func text(_ sender: AnyObject) {
-        self.noticeOnlyText("Only Text Only Text Only Text Only \nText Only Text Only Text Only\n Text Only Text Only Text ", hideAfter: 5, closeOnTap: true)
+        self.noticeOverlayText("Only Text Only Text Only Text Only \nText Only Text Only Text Only\n Text Only Text Only Text ", hideAfter: 10)
     }
     
     @IBAction func clear(_ sender: AnyObject) {

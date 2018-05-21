@@ -30,8 +30,8 @@ extension UIResponder {
     }
 
     @discardableResult
-    func noticeOnlyText(_ text: String, hideAfter: Int = 3, closeOnTap: Bool = true) -> UIWindow {
-        return SwiftNotice.showText(text, hideAfter: hideAfter, closeOnTap: closeOnTap)
+    func noticeOverlayText(_ text: String, hideAfter: Int = 3, userInteractionEnabled: Bool = false, closeOnTap: Bool = true) -> UIWindow {
+        return SwiftNotice.showText(text, hideAfter: hideAfter, userInteractionEnabled: userInteractionEnabled, closeOnTap: closeOnTap)
     }
     
     func clearAllNotice() {
@@ -59,7 +59,36 @@ class SwiftNotice: NSObject {
     }
     
     @discardableResult
-    static func noticeOnStatusBar(_ text: String, color: UIColor, hideAfter: Int = 0, closeOnTap: Bool = true) -> UIWindow {
+    static func wait(userInteractionEnabled: Bool = false) -> UIWindow {
+        let frame = CGRect(x: 0, y: 0, width: 78, height: 78)
+        
+        let window = notificationWindow(userInteractionEnabled: userInteractionEnabled, closeOnTap: false)
+        
+        let mainView = UIView()
+        mainView.layer.cornerRadius = 12
+        mainView.backgroundColor = UIColor(red:0, green:0, blue:0, alpha: 0.8)
+        window.addSubview(mainView)
+        
+        let ai = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.whiteLarge)
+        ai.frame = CGRect(x: 21, y: 21, width: 36, height: 36)
+        ai.startAnimating()
+        mainView.addSubview(ai)
+        
+        mainView.frame = frame
+        mainView.center = window.center
+        
+        windows.append(window)
+        
+        window.alpha = 0.0
+        UIView.animate(withDuration: 0.2, animations: {
+            window.alpha = 1
+        })
+        
+        return window
+    }
+    
+    @discardableResult
+    static func noticeOnStatusBar(_ text: String, color: UIColor, hideAfter: Int, closeOnTap: Bool) -> UIWindow {
         let frame = UIApplication.shared.statusBarFrame
         let window = UIWindow()
         window.backgroundColor = UIColor.clear
@@ -104,36 +133,7 @@ class SwiftNotice: NSObject {
     }
     
     @discardableResult
-    static func wait(userInteractionEnabled: Bool = false) -> UIWindow {
-        let frame = CGRect(x: 0, y: 0, width: 78, height: 78)
-        
-        let window = notificationWindow(userInteractionEnabled: userInteractionEnabled, closeOnTap: false)
-        
-        let mainView = UIView()
-        mainView.layer.cornerRadius = 12
-        mainView.backgroundColor = UIColor(red:0, green:0, blue:0, alpha: 0.8)
-        window.addSubview(mainView)
-        
-        let ai = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.whiteLarge)
-        ai.frame = CGRect(x: 21, y: 21, width: 36, height: 36)
-        ai.startAnimating()
-        mainView.addSubview(ai)
-
-        mainView.frame = frame
-        mainView.center = window.center
-        
-        windows.append(window)
-        
-        window.alpha = 0.0
-        UIView.animate(withDuration: 0.2, animations: {
-            window.alpha = 1
-        })
-        
-        return window
-    }
-    
-    @discardableResult
-    static func showText(_ text: String, hideAfter: Int = 2, userInteractionEnabled: Bool = false, closeOnTap: Bool = true) -> UIWindow {
+    static func showText(_ text: String, hideAfter: Int, userInteractionEnabled: Bool, closeOnTap: Bool) -> UIWindow {
 
         let window = notificationWindow(userInteractionEnabled: userInteractionEnabled, closeOnTap: closeOnTap)
         let mainView = UIView()
