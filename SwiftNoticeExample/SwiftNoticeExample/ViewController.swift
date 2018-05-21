@@ -17,14 +17,8 @@ class ViewController: UIViewController {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
-    @IBAction func userInteractionSwitch(_ sender: UISwitch) {
-        //
-    }
     
-    @IBAction func topNotice(_ sender: AnyObject) {
-        UIApplication.shared.setStatusBarHidden(false, with: .slide)
-        self.noticeInfo("OK!, tap to hide", hideAfter: 10)
-    }
+
     @IBAction func wait(_ sender: AnyObject) {
         let hud = self.pleaseWait()
         DispatchQueue.global().async {
@@ -35,7 +29,7 @@ class ViewController: UIViewController {
     }
 
     @IBAction func noticeSuccess(_ sender: AnyObject) {
-        self.noticeInfo("Success")
+        self.noticeInfo("Success, tap to hide", hideAfter: 10)
     }
     
     @IBAction func noticeError(_ sender: AnyObject) {
