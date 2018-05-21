@@ -2,7 +2,8 @@
 //  SwiftNotice.swift
 //  SwiftNotice
 //
-//  Created by JohnLui on 15/4/15.
+//  Created by Rafa Barberá on 21/05/2018
+//  Based on work by JohnLui on 15/4/15.
 //  Copyright (c) 2015年 com.lvwenhan. All rights reserved.
 //
 
@@ -19,31 +20,18 @@ extension UIResponder {
     }
 
     @discardableResult
-    func pleaseWaitWithImages(_ imageNames: Array<UIImage>, timeInterval: Int) -> UIWindow{
-        return SwiftNotice.wait(imageNames, timeInterval: timeInterval)
+    func noticeInfo(_ text: String, hideAfter: Int = 2, closeOnTap: Bool = true) -> UIWindow{
+        return SwiftNotice.noticeOnStatusBar(text, color: UIColor(red: 0x6a/0x100, green: 0xb4/0x100, blue: 0x9f/0x100, alpha: 1), hideAfter: hideAfter, closeOnTap: closeOnTap)
     }
 
     @discardableResult
-    func noticeTop(_ text: String, hideAfter: Int = 2) -> UIWindow{
-        return SwiftNotice.noticeOnStatusBar(text, hideAfter: hideAfter)
+    func noticeError(_ text: String, hideAfter: Int = 2, closeOnTap: Bool = true) -> UIWindow{
+        return SwiftNotice.noticeOnStatusBar(text, color: UIColor(red: 0x9f/0x100, green: 0x04/0x100, blue: 0x04/0x100, alpha: 1), hideAfter: hideAfter, closeOnTap: closeOnTap)
     }
-    
+
     @discardableResult
     func noticeOnlyText(_ text: String, hideAfter: Int = 3, closeOnTap: Bool = true) -> UIWindow{
         return SwiftNotice.showText(text, hideAfter: hideAfter, closeOnTap: closeOnTap)
-    }
-
-    @discardableResult
-    func noticeSuccess(_ text: String, hideAfter: Int = 3, closeOnTap: Bool = true) -> UIWindow{
-        return SwiftNotice.showNoticeWithText(NoticeType.success, text: text, hideAfter: hideAfter, closeOnTap: closeOnTap)
-    }
-    @discardableResult
-    func noticeError(_ text: String, hideAfter: Int = 3, closeOnTap: Bool = true) -> UIWindow{
-        return SwiftNotice.showNoticeWithText(NoticeType.error, text: text, hideAfter: hideAfter, closeOnTap: closeOnTap)
-    }
-    @discardableResult
-    func noticeInfo(_ text: String, hideAfter: Int = 3, closeOnTap: Bool = true) -> UIWindow{
-        return SwiftNotice.showNoticeWithText(NoticeType.info, text: text, hideAfter: hideAfter, closeOnTap: closeOnTap)
     }
     
     func clearAllNotice() {
@@ -51,21 +39,12 @@ extension UIResponder {
     }
 }
 
-enum NoticeType{
-    case success
-    case error
-    case info
-}
-
 class SwiftNotice: NSObject {
     
     static var windows = Array<UIWindow?>()
-    static let rv = UIApplication.shared.keyWindow?.subviews.first as UIView?
     static var timer: DispatchSource!
     static var timerTimes = 0
-    
-    // fix https://github.com/johnlui/SwiftNotice/issues/2
-    // thanks broccolii(https://github.com/broccolii) and his PR https://github.com/johnlui/SwiftNotice/pull/5
+
     static func clear() {
         self.cancelPreviousPerformRequests(withTarget: self)
         if let _ = timer {
@@ -77,12 +56,12 @@ class SwiftNotice: NSObject {
     }
     
     @discardableResult
-    static func noticeOnStatusBar(_ text: String, hideAfter: Int = 0, closeOnTap: Bool = true) -> UIWindow{
+    static func noticeOnStatusBar(_ text: String, color: UIColor, hideAfter: Int = 0, closeOnTap: Bool = true) -> UIWindow {
         let frame = UIApplication.shared.statusBarFrame
         let window = UIWindow()
         window.backgroundColor = UIColor.clear
         let view = UIView()
-        view.backgroundColor = UIColor(red: 0x6a/0x100, green: 0xb4/0x100, blue: 0x9f/0x100, alpha: 1)
+        view.backgroundColor = color
         
         let label = UILabel(frame: frame.height > 20 ? CGRect(x: frame.origin.x, y: frame.origin.y + frame.height - 17, width: frame.width, height: 20) : frame)
         label.textAlignment = NSTextAlignment.center
@@ -122,38 +101,21 @@ class SwiftNotice: NSObject {
     }
     
     @discardableResult
-    static func wait(_ imageNames: Array<UIImage> = Array<UIImage>(), timeInterval: Int = 0, userInteractionEnabled: Bool = false) -> UIWindow {
+    static func wait(userInteractionEnabled: Bool = false) -> UIWindow {
         let frame = CGRect(x: 0, y: 0, width: 78, height: 78)
         
-        let window = configWindow(userInteractionEnabled: userInteractionEnabled, closeOnTap: false)
+        let window = notificationWindow(userInteractionEnabled: userInteractionEnabled, closeOnTap: false)
         
         let mainView = UIView()
         mainView.layer.cornerRadius = 12
         mainView.backgroundColor = UIColor(red:0, green:0, blue:0, alpha: 0.8)
         window.addSubview(mainView)
         
-        if imageNames.count > 0 {
-            if imageNames.count > timerTimes {
-                let iv = UIImageView(frame: frame)
-                iv.image = imageNames.first!
-                iv.contentMode = UIViewContentMode.scaleAspectFit
-                mainView.addSubview(iv)
-                timer = DispatchSource.makeTimerSource(flags: DispatchSource.TimerFlags(rawValue: UInt(0)), queue: DispatchQueue.main) as! DispatchSource
-                timer.schedule(deadline: DispatchTime.now(), repeating: DispatchTimeInterval.milliseconds(timeInterval))
-                timer.setEventHandler(handler: { () -> Void in
-                    let name = imageNames[timerTimes % imageNames.count]
-                    iv.image = name
-                    timerTimes += 1
-                })
-                timer.resume()
-            }
-        } else {
-            let ai = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.whiteLarge)
-            ai.frame = CGRect(x: 21, y: 21, width: 36, height: 36)
-            ai.startAnimating()
-            mainView.addSubview(ai)
-        }
-        
+        let ai = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.whiteLarge)
+        ai.frame = CGRect(x: 21, y: 21, width: 36, height: 36)
+        ai.startAnimating()
+        mainView.addSubview(ai)
+
         mainView.frame = frame
         mainView.center = window.center
         
@@ -170,7 +132,7 @@ class SwiftNotice: NSObject {
     @discardableResult
     static func showText(_ text: String, hideAfter: Int = 2, userInteractionEnabled: Bool = false, closeOnTap: Bool = true) -> UIWindow {
 
-        let window = configWindow(userInteractionEnabled: userInteractionEnabled, closeOnTap: closeOnTap)
+        let window = notificationWindow(userInteractionEnabled: userInteractionEnabled, closeOnTap: closeOnTap)
         let mainView = UIView()
         mainView.layer.cornerRadius = 12
         mainView.backgroundColor = UIColor(red:0, green:0, blue:0, alpha: 0.8)
@@ -204,53 +166,10 @@ class SwiftNotice: NSObject {
         }
         return window
     }
-    
-    @discardableResult
-    static func showNoticeWithText(_ type: NoticeType,text: String, hideAfter: Int = 0, userInteractionEnabled: Bool = false, closeOnTap: Bool = true) -> UIWindow {
-        let frame = CGRect(x: 0, y: 0, width: 90, height: 90)
-        let window = configWindow(userInteractionEnabled: userInteractionEnabled, closeOnTap: closeOnTap)
-        let mainView = UIView()
-        mainView.layer.cornerRadius = 10
-        mainView.backgroundColor = UIColor(red:0, green:0, blue:0, alpha: 0.7)
-        window.addSubview(mainView)
-        
-        var image = UIImage()
-        switch type {
-        case .success:
-            image = SwiftNoticeSDK.imageOfCheckmark
-        case .error:
-            image = SwiftNoticeSDK.imageOfCross
-        case .info:
-            image = SwiftNoticeSDK.imageOfInfo
-        }
-        let checkmarkView = UIImageView(image: image)
-        checkmarkView.frame = CGRect(x: 27, y: 15, width: 36, height: 36)
-        mainView.addSubview(checkmarkView)
-        
-        let label = UILabel(frame: CGRect(x: 0, y: 60, width: 90, height: 16))
-        label.font = UIFont.systemFont(ofSize: 13)
-        label.textColor = UIColor.white
-        label.text = text
-        label.textAlignment = NSTextAlignment.center
-        mainView.addSubview(label)
-        mainView.frame = frame
-        mainView.center = window.center
-        
-        windows.append(window)
-        
-        mainView.alpha = 0.0
-        UIView.animate(withDuration: 0.2, animations: {
-            mainView.alpha = 1
-        })
-        
-        if hideAfter > 0 {
-            self.perform(.hideNotice, with: window, afterDelay: TimeInterval(hideAfter))
-        }
-        return window
-    }
-    
-    // config general window
-    static func configWindow(userInteractionEnabled: Bool, closeOnTap: Bool) -> UIWindow{
+   
+    static func notificationWindow(userInteractionEnabled: Bool, closeOnTap: Bool) -> UIWindow{
+        let rv = UIApplication.shared.keyWindow?.subviews.first
+
         let window = UIWindow()
         window.backgroundColor = userInteractionEnabled
             ? UIColor.clear
@@ -258,7 +177,7 @@ class SwiftNotice: NSObject {
         window.frame = (UIApplication.shared.keyWindow?.frame)!
         window.windowLevel = UIWindowLevelAlert
         window.isHidden = false
-        window.center = SwiftNotice.rv!.center
+        window.center = rv!.center
         window.isUserInteractionEnabled = !userInteractionEnabled
         
         if closeOnTap && window.isUserInteractionEnabled {
@@ -267,93 +186,6 @@ class SwiftNotice: NSObject {
         }
         
         return window
-    }
-}
-
-class SwiftNoticeSDK {
-    struct Cache {
-        static var imageOfCheckmark: UIImage?
-        static var imageOfCross: UIImage?
-        static var imageOfInfo: UIImage?
-    }
-    class func draw(_ type: NoticeType) {
-        let checkmarkShapePath = UIBezierPath()
-        
-        // draw circle
-        checkmarkShapePath.move(to: CGPoint(x: 36, y: 18))
-        checkmarkShapePath.addArc(withCenter: CGPoint(x: 18, y: 18), radius: 17.5, startAngle: 0, endAngle: CGFloat(Double.pi*2), clockwise: true)
-        checkmarkShapePath.close()
-        
-        switch type {
-        case .success: // draw checkmark
-            checkmarkShapePath.move(to: CGPoint(x: 10, y: 18))
-            checkmarkShapePath.addLine(to: CGPoint(x: 16, y: 24))
-            checkmarkShapePath.addLine(to: CGPoint(x: 27, y: 13))
-            checkmarkShapePath.move(to: CGPoint(x: 10, y: 18))
-            checkmarkShapePath.close()
-        case .error: // draw X
-            checkmarkShapePath.move(to: CGPoint(x: 10, y: 10))
-            checkmarkShapePath.addLine(to: CGPoint(x: 26, y: 26))
-            checkmarkShapePath.move(to: CGPoint(x: 10, y: 26))
-            checkmarkShapePath.addLine(to: CGPoint(x: 26, y: 10))
-            checkmarkShapePath.move(to: CGPoint(x: 10, y: 10))
-            checkmarkShapePath.close()
-        case .info:
-            checkmarkShapePath.move(to: CGPoint(x: 18, y: 6))
-            checkmarkShapePath.addLine(to: CGPoint(x: 18, y: 22))
-            checkmarkShapePath.move(to: CGPoint(x: 18, y: 6))
-            checkmarkShapePath.close()
-            
-            UIColor.white.setStroke()
-            checkmarkShapePath.stroke()
-            
-            let checkmarkShapePath = UIBezierPath()
-            checkmarkShapePath.move(to: CGPoint(x: 18, y: 27))
-            checkmarkShapePath.addArc(withCenter: CGPoint(x: 18, y: 27), radius: 1, startAngle: 0, endAngle: CGFloat(Double.pi*2), clockwise: true)
-            checkmarkShapePath.close()
-            
-            UIColor.white.setFill()
-            checkmarkShapePath.fill()
-        }
-        
-        UIColor.white.setStroke()
-        checkmarkShapePath.stroke()
-    }
-    class var imageOfCheckmark: UIImage {
-        if (Cache.imageOfCheckmark != nil) {
-            return Cache.imageOfCheckmark!
-        }
-        UIGraphicsBeginImageContextWithOptions(CGSize(width: 36, height: 36), false, 0)
-        
-        SwiftNoticeSDK.draw(NoticeType.success)
-        
-        Cache.imageOfCheckmark = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return Cache.imageOfCheckmark!
-    }
-    class var imageOfCross: UIImage {
-        if (Cache.imageOfCross != nil) {
-            return Cache.imageOfCross!
-        }
-        UIGraphicsBeginImageContextWithOptions(CGSize(width: 36, height: 36), false, 0)
-        
-        SwiftNoticeSDK.draw(NoticeType.error)
-        
-        Cache.imageOfCross = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return Cache.imageOfCross!
-    }
-    class var imageOfInfo: UIImage {
-        if (Cache.imageOfInfo != nil) {
-            return Cache.imageOfInfo!
-        }
-        UIGraphicsBeginImageContextWithOptions(CGSize(width: 36, height: 36), false, 0)
-        
-        SwiftNoticeSDK.draw(NoticeType.info)
-        
-        Cache.imageOfInfo = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return Cache.imageOfInfo!
     }
 }
 
